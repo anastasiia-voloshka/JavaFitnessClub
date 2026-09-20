@@ -15,6 +15,7 @@ public class Main {
         scanner.nextLine();
 
         System.out.print("Введіть тип абонемента: ");
+
         String subscriptionType = scanner.nextLine();
 
         System.out.print("Введіть кількість місяців: ");
@@ -37,7 +38,7 @@ public class Main {
         System.out.println();
         System.out.println("========== ФІТНЕС-КЛУБ ==========");
 
-        System.out.printf("Клієнт: %s %s%n", name, surname);
+        System.out.printf("Клієнт: %s %s%n", name, surname); 
         System.out.printf("Вік: %d%n", age);
         System.out.printf("Тип абонемента: %s%n", subscriptionType);
         System.out.printf("Кількість місяців: %d%n", months);
