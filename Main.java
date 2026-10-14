@@ -153,9 +153,7 @@ public class Main {
         }
     }
 
-    // Метод для введення цілого числа
-    // Частково обробляє InputMismatchException
-    // і передає його далі через throw e.
+
     private static int readInt(Scanner scanner) {
         try {
             int value = scanner.nextInt();
@@ -171,9 +169,6 @@ public class Main {
         }
     }
 
-    // Метод для введення дробового числа
-    // Частково обробляє InputMismatchException
-    // і передає його далі через throw e.
     private static double readDouble(Scanner scanner) {
         try {
             double value = scanner.nextDouble();
