@@ -1,3 +1,4 @@
+
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -16,13 +17,13 @@ public class Main {
                 System.out.println();
                 System.out.println("Клієнт №" + (i + 1));
 
-                System.out.print("Введіть ім'я клієнта: ");
+                System.out.print("Введіть ім'я: ");
                 String name = scanner.nextLine();
 
-                System.out.print("Введіть прізвище клієнта: ");
+                System.out.print("Введіть прізвище: ");
                 String surname = scanner.nextLine();
 
-                System.out.print("Введіть вік клієнта: ");
+                System.out.print("Введіть вік: ");
                 int age = readInt(scanner);
 
                 System.out.print("Введіть тип абонемента: ");
@@ -44,8 +45,7 @@ public class Main {
                 );
             }
 
-            System.out.println();
-            System.out.println("========== УСІ КЛІЄНТИ ==========");
+            System.out.println("\n========== УСІ КЛІЄНТИ ==========");
 
             for (Client client : clients) {
                 System.out.println(client);
@@ -61,12 +61,15 @@ public class Main {
             }
 
             System.out.println(
-                    "Кількість клієнтів з абонементом від 6 місяців: " + count
+                    "Кількість клієнтів з абонементом від 6 місяців: "
+                            + count
             );
 
+            // Сортування за вартістю одного місяця
             for (int i = 0; i < clients.length - 1; i++) {
                 for (int j = 0; j < clients.length - 1 - i; j++) {
-                    if (clients[j].monthlyPrice > clients[j + 1].monthlyPrice) {
+                    if (clients[j].monthlyPrice
+                            > clients[j + 1].monthlyPrice) {
                         Client temp = clients[j];
                         clients[j] = clients[j + 1];
                         clients[j + 1] = temp;
@@ -74,16 +77,18 @@ public class Main {
                 }
             }
 
-            System.out.println();
-            System.out.println("========== ПІСЛЯ СОРТУВАННЯ ==========");
+            System.out.println("\n========== ПІСЛЯ СОРТУВАННЯ ==========");
 
             for (Client client : clients) {
                 System.out.println(client);
                 System.out.println("---------------------------------");
             }
 
-            System.out.println();
-            System.out.println("========== ПОШУК КЛІЄНТА ==========");
+
+
+
+
+            System.out.println("\n========== ПОШУК КЛІЄНТА ==========");
 
             System.out.print("Введіть ім'я для пошуку: ");
             String searchName = scanner.nextLine();
@@ -91,36 +96,14 @@ public class Main {
             System.out.print("Введіть прізвище для пошуку: ");
             String searchSurname = scanner.nextLine();
 
-            System.out.print("Введіть вік для пошуку: ");
-            int searchAge = readInt(scanner);
-
-            System.out.print("Введіть тип абонемента для пошуку: ");
-            String searchSubscriptionType = scanner.nextLine();
-
-            System.out.print("Введіть кількість місяців для пошуку: ");
-            int searchMonths = readInt(scanner);
-
-            System.out.print("Введіть вартість одного місяця для пошуку: ");
-            double searchMonthlyPrice = readDouble(scanner);
-
-            Client searchClient = new Client(
-                    searchName,
-                    searchSurname,
-                    searchAge,
-                    searchSubscriptionType,
-                    searchMonths,
-                    searchMonthlyPrice
-            );
-
             boolean found = false;
 
             for (Client client : clients) {
-                if (client.equals(searchClient)) {
-                    System.out.println();
-                    System.out.println("Клієнта знайдено:");
+                if (client.name.equalsIgnoreCase(searchName)
+                        && client.surname.equalsIgnoreCase(searchSurname)) {
+                    System.out.println("\nКлієнта знайдено:");
                     System.out.println(client);
                     found = true;
-                    break;
                 }
             }
 
@@ -128,10 +111,102 @@ public class Main {
                 System.out.println("Клієнта не знайдено.");
             }
 
+            // Рівень 1: поліморфізм через масив інтерфейсів
+            System.out.println("\n========== ПОЛІМОРФІЗМ ==========");
+
+            DiscountStrategy[] strategies = {
+                    new RegularDiscount(),
+                    new LongTermDiscount()
+            };
+
+            double totalPrice = 6000;
+            int months = 6;
+
+            for (DiscountStrategy strategy : strategies) {
+                double discount =
+                        strategy.calculateDiscount(totalPrice, months);
+
+                System.out.println(
+                        "Стратегія: " + strategy.getStrategyName()
+                );
+                System.out.printf("Знижка: %.2f грн%n", discount);
+                System.out.printf(
+                        "До сплати: %.2f грн%n",
+                        totalPrice - discount
+                );
+                System.out.println("---------------------------------");
+            }
+
+
+
+
+
+
+            System.out.println("\n========== DEFAULT-МЕТОД ==========");
+
+            DiscountStrategy regular = new RegularDiscount();
+
+            System.out.println(
+                    "Назва стратегії: " + regular.getStrategyName()
+            );
+
+            DiscountStrategy custom = new DiscountStrategy() {
+                @Override
+                public double calculateDiscount(
+                        double price, int months) {
+                    return 0;
+                }
+            };
+
+            System.out.println(
+                    "Назва за замовчуванням: "
+                            + custom.getStrategyName()
+            );
+
+
+
+
+
+
+
+            System.out.println("\n========== ПЕРЕВАГИ АБОНЕМЕНТА ==========");
+
+            SubscriptionBenefit benefit = new LongTermDiscount();
+
+            System.out.println(benefit.getBenefitDescription());
+
+
+
+
+
+
+
+            System.out.println("\n========== ПАТЕРН STRATEGY ==========");
+
+            SubscriptionCalculator calculator =
+                    new SubscriptionCalculator(new LongTermDiscount());
+
+            System.out.println(
+                    "Поточна стратегія: " + calculator.getStrategyName()
+            );
+            System.out.printf(
+                    "До сплати: %.2f грн%n",
+                    calculator.calculateFinalPrice(totalPrice, months)
+            );
+
+            calculator.setStrategy(new RegularDiscount());
+
+            System.out.println(
+                    "Нова стратегія: " + calculator.getStrategyName()
+            );
+            System.out.printf(
+                    "До сплати: %.2f грн%n",
+                    calculator.calculateFinalPrice(totalPrice, months)
+            );
+
         } catch (InputMismatchException e) {
             System.out.println(
-                    "Помилка: введено некоректний тип даних. "
-                            + "Для числового поля потрібно ввести число."
+                    "Помилка: введено некоректний тип даних."
             );
 
         } catch (NegativeArraySizeException e) {
@@ -147,24 +222,22 @@ public class Main {
                     "Некоректне значення: " + e.getInvalidValue()
             );
 
+        } catch (IllegalArgumentException e) {
+            System.out.println("Помилка: " + e.getMessage());
+
         } finally {
             scanner.close();
-            System.out.println("Роботу програми завершено.");
+            System.out.println("\nРоботу програми завершено.");
         }
     }
-
 
     private static int readInt(Scanner scanner) {
         try {
             int value = scanner.nextInt();
             scanner.nextLine();
             return value;
-
         } catch (InputMismatchException e) {
-            System.out.println(
-                    "Помилка введення: очікується ціле число."
-            );
-
+            scanner.nextLine();
             throw e;
         }
     }
@@ -174,19 +247,15 @@ public class Main {
             double value = scanner.nextDouble();
             scanner.nextLine();
             return value;
-
         } catch (InputMismatchException e) {
-            System.out.println(
-                    "Помилка введення: очікується числове значення."
-            );
-
+            scanner.nextLine();
             throw e;
         }
     }
 }
 
-
 class Client {
+
     String name;
     String surname;
     int age;
@@ -198,6 +267,13 @@ class Client {
            String subscriptionType, int months, double monthlyPrice)
             throws InvalidAgeException, InvalidSubscriptionException {
 
+        if (name == null || name.trim().isEmpty()
+                || surname == null || surname.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Ім'я та прізвище не можуть бути порожніми."
+            );
+        }
+
         if (age < 1 || age > 120) {
             throw new InvalidAgeException(
                     "Вік клієнта повинен бути від 1 до 120 років.",
@@ -207,15 +283,23 @@ class Client {
 
         if (months <= 0) {
             throw new InvalidSubscriptionException(
-                    "Кількість місяців абонемента повинна бути більшою за 0.",
+                    "Кількість місяців повинна бути більшою за 0.",
                     months
             );
         }
 
-        if (monthlyPrice <= 0) {
+        if (!Double.isFinite(monthlyPrice) || monthlyPrice <= 0) {
             throw new InvalidSubscriptionException(
                     "Вартість одного місяця повинна бути більшою за 0.",
                     monthlyPrice
+            );
+        }
+
+        if (subscriptionType == null
+                || subscriptionType.trim().isEmpty()) {
+            throw new InvalidSubscriptionException(
+                    "Тип абонемента не може бути порожнім.",
+                    subscriptionType
             );
         }
 
@@ -230,25 +314,22 @@ class Client {
     @Override
     public String toString() {
         double totalPrice = monthlyPrice * months;
-        double discount;
 
-        if (months >= 6) {
-            discount = totalPrice * 10 / 100;
-        } else {
-            discount = 0;
-        }
+        SubscriptionCalculator calculator =
+                new SubscriptionCalculator(new LongTermDiscount());
 
+        double discount = calculator.calculateDiscount(totalPrice, months);
         double finalPrice = totalPrice - discount;
 
         return String.format(
-                "Клієнт: %s %s%n" +
-                        "Вік: %d%n" +
-                        "Тип абонемента: %s%n" +
-                        "Кількість місяців: %d%n" +
-                        "Вартість одного місяця: %.2f грн%n" +
-                        "Вартість без знижки: %.2f грн%n" +
-                        "Знижка: %.2f грн%n" +
-                        "До сплати: %.2f грн",
+                "Клієнт: %s %s%n"
+                        + "Вік: %d%n"
+                        + "Тип абонемента: %s%n"
+                        + "Кількість місяців: %d%n"
+                        + "Вартість одного місяця: %.2f грн%n"
+                        + "Вартість без знижки: %.2f грн%n"
+                        + "Знижка: %.2f грн%n"
+                        + "До сплати: %.2f грн",
                 name,
                 surname,
                 age,
