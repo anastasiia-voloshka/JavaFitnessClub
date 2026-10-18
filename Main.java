@@ -2,6 +2,8 @@
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+import src.*;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -11,7 +13,25 @@ public class Main {
             System.out.print("Введіть кількість клієнтів: ");
             int n = readInt(scanner);
 
+            if (n < 0) {
+                throw new IllegalArgumentException(
+                        "Кількість клієнтів не може бути від'ємною."
+                );
+            }
+
             Client[] clients = new Client[n];
+
+            src.Subject subject = new src.Subject();
+
+             subject.addObserver(
+               new src.ConsoleNotificationObserver()
+            );
+
+            subject.addObserver(
+        new src.MembershipLogObserver()
+);
+
+
 
             for (int i = 0; i < n; i++) {
                 System.out.println();
@@ -43,6 +63,12 @@ public class Main {
                         months,
                         monthlyPrice
                 );
+
+                subject.notifyObservers(
+        "Зареєстровано клієнта: " + name + " " + surname
+                + ". Абонемент: " + subscriptionType
+                + ", термін: " + months + " міс."
+);
             }
 
             System.out.println("\n========== УСІ КЛІЄНТИ ==========");
@@ -65,7 +91,6 @@ public class Main {
                             + count
             );
 
-            // Сортування за вартістю одного місяця
             for (int i = 0; i < clients.length - 1; i++) {
                 for (int j = 0; j < clients.length - 1 - i; j++) {
                     if (clients[j].monthlyPrice
@@ -83,10 +108,6 @@ public class Main {
                 System.out.println(client);
                 System.out.println("---------------------------------");
             }
-
-
-
-
 
             System.out.println("\n========== ПОШУК КЛІЄНТА ==========");
 
@@ -111,12 +132,11 @@ public class Main {
                 System.out.println("Клієнта не знайдено.");
             }
 
-            // Рівень 1: поліморфізм через масив інтерфейсів
             System.out.println("\n========== ПОЛІМОРФІЗМ ==========");
 
             DiscountStrategy[] strategies = {
-                    new RegularDiscount(),
-                    new LongTermDiscount()
+                    DiscountStrategyFactory.create("regular"),
+                    DiscountStrategyFactory.create("long-term")
             };
 
             double totalPrice = 6000;
@@ -129,22 +149,20 @@ public class Main {
                 System.out.println(
                         "Стратегія: " + strategy.getStrategyName()
                 );
+
                 System.out.printf("Знижка: %.2f грн%n", discount);
                 System.out.printf(
                         "До сплати: %.2f грн%n",
                         totalPrice - discount
                 );
+
                 System.out.println("---------------------------------");
             }
 
-
-
-
-
-
             System.out.println("\n========== DEFAULT-МЕТОД ==========");
 
-            DiscountStrategy regular = new RegularDiscount();
+            DiscountStrategy regular =
+                    DiscountStrategyFactory.create("regular");
 
             System.out.println(
                     "Назва стратегії: " + regular.getStrategyName()
@@ -152,8 +170,7 @@ public class Main {
 
             DiscountStrategy custom = new DiscountStrategy() {
                 @Override
-                public double calculateDiscount(
-                        double price, int months) {
+                public double calculateDiscount(double price, int months) {
                     return 0;
                 }
             };
@@ -163,42 +180,36 @@ public class Main {
                             + custom.getStrategyName()
             );
 
-
-
-
-
-
-
             System.out.println("\n========== ПЕРЕВАГИ АБОНЕМЕНТА ==========");
 
             SubscriptionBenefit benefit = new LongTermDiscount();
 
             System.out.println(benefit.getBenefitDescription());
 
-
-
-
-
-
-
             System.out.println("\n========== ПАТЕРН STRATEGY ==========");
 
             SubscriptionCalculator calculator =
-                    new SubscriptionCalculator(new LongTermDiscount());
+                    new SubscriptionCalculator(
+                            DiscountStrategyFactory.create("long-term")
+                    );
 
             System.out.println(
                     "Поточна стратегія: " + calculator.getStrategyName()
             );
+
             System.out.printf(
                     "До сплати: %.2f грн%n",
                     calculator.calculateFinalPrice(totalPrice, months)
             );
 
-            calculator.setStrategy(new RegularDiscount());
+            calculator.setStrategy(
+                    DiscountStrategyFactory.create("regular")
+            );
 
             System.out.println(
                     "Нова стратегія: " + calculator.getStrategyName()
             );
+
             System.out.printf(
                     "До сплати: %.2f грн%n",
                     calculator.calculateFinalPrice(totalPrice, months)
@@ -209,15 +220,11 @@ public class Main {
                     "Помилка: введено некоректний тип даних."
             );
 
-        } catch (NegativeArraySizeException e) {
-            System.out.println(
-                    "Помилка: кількість клієнтів не може бути від'ємною."
-            );
-
         } catch (DomainException e) {
             System.out.println(
                     "Помилка даних клієнта: " + e.getMessage()
             );
+
             System.out.println(
                     "Некоректне значення: " + e.getInvalidValue()
             );
@@ -263,9 +270,14 @@ class Client {
     int months;
     double monthlyPrice;
 
-    Client(String name, String surname, int age,
-           String subscriptionType, int months, double monthlyPrice)
-            throws InvalidAgeException, InvalidSubscriptionException {
+    Client(
+            String name,
+            String surname,
+            int age,
+            String subscriptionType,
+            int months,
+            double monthlyPrice
+    ) throws InvalidAgeException, InvalidSubscriptionException {
 
         if (name == null || name.trim().isEmpty()
                 || surname == null || surname.trim().isEmpty()) {
@@ -316,9 +328,13 @@ class Client {
         double totalPrice = monthlyPrice * months;
 
         SubscriptionCalculator calculator =
-                new SubscriptionCalculator(new LongTermDiscount());
+                new SubscriptionCalculator(
+                        DiscountStrategyFactory.create("long-term")
+                );
 
-        double discount = calculator.calculateDiscount(totalPrice, months);
+        double discount =
+                calculator.calculateDiscount(totalPrice, months);
+
         double finalPrice = totalPrice - discount;
 
         return String.format(

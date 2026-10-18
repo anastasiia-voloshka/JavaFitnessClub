@@ -1,4 +1,4 @@
-
+package src;
 public class LongTermDiscount extends AbstractDiscountStrategy
         implements SubscriptionBenefit {
 

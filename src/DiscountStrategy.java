@@ -1,4 +1,4 @@
-
+package src;
 public interface DiscountStrategy {
 
     double calculateDiscount(double totalPrice, int months);

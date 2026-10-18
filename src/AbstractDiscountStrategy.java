@@ -1,4 +1,4 @@
-
+package src;
 public abstract class AbstractDiscountStrategy
         implements DiscountStrategy {
 

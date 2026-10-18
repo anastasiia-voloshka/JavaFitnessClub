@@ -1,39 +1,111 @@
-
-# Лабораторна робота №4
-## Реалізація програмних інтерфейсів мовою Java
+# Лабораторна робота №5
+## Рефакторинг програмного коду із застосуванням патернів проєктування
 
 ### Предметна область
 Система обліку клієнтів фітнес-клубу та розрахунку вартості абонементів.
 
 ### Мета роботи
-Навчитися використовувати інтерфейси, абстрактні класи, наслідування, поліморфізм і патерн Strategy у Java.
+Застосувати патерни проєктування Factory, Observer та Adapter для покращення структури наявного програмного коду, зменшення залежності між класами та спрощення подальшого розширення програми.
 
-### Реалізовані вимоги
+### Реалізовані патерни
 
-1. Інтерфейс `DiscountStrategy` визначає поведінку розрахунку знижки.
-2. `RegularDiscount` і `LongTermDiscount` реалізують різні стратегії.
-3. Масив `DiscountStrategy[]` демонструє поліморфізм.
-4. Інтерфейс містить `default`-метод `getStrategyName()`.
-5. `AbstractDiscountStrategy` містить спільну перевірку вхідних даних.
-6. `LongTermDiscount` реалізує два інтерфейси: `DiscountStrategy` через абстрактний клас та `SubscriptionBenefit` безпосередньо.
-7. `SubscriptionCalculator` реалізує контекст патерна Strategy та дозволяє змінювати стратегію під час виконання програми.
+#### 1. Factory — створення стратегій знижок
+
+Створено клас `DiscountStrategyFactory`, який централізує створення об'єктів типу `DiscountStrategy`.
+
+Фабрика підтримує такі типи:
+- `regular` — стратегія без знижки;
+- `long-term` — знижка 10% за абонемент від 6 місяців.
+
+**Проблема до рефакторингу:** клієнтський код самостійно створював конкретні стратегії за допомогою `new`.
+
+**Рішення:** створення стратегій перенесено до фабрики. Це спрощує керування створенням об'єктів і зменшує залежність клієнтського коду від конкретних реалізацій.
+
+#### 2. Observer — сповіщення про події
+
+Створено:
+- `Observer` — інтерфейс спостерігача;
+- `Subject` — клас, який зберігає підписників і сповіщає їх;
+- `ConsoleNotificationObserver` — виводить повідомлення в консоль;
+- `MembershipLogObserver` — імітує запис подій у журнал.
+
+Після створення клієнта програма повідомляє обох спостерігачів про реєстрацію та оформлення абонемента.
+
+**Перевага:** можна додавати нових спостерігачів без зміни логіки класу `Subject`.
+
+#### 3. Adapter — адаптація зовнішнього сервісу оплати
+
+Створено:
+- `PaymentProcessor` — інтерфейс оплати, який очікує наша програма;
+- `LegacyPaymentService` — імітація зовнішнього сервісу, що приймає суму в копійках;
+- `PaymentAdapter` — адаптує виклик `pay(double amount)` до методу `makePayment(int amountInKopecks)`;
+- `AdapterDemo` — демонстрація роботи адаптера.
+
+Адаптер перетворює суму з гривень на копійки та передає її зовнішньому сервісу. Клас `LegacyPaymentService` не змінюється.
+
+**Перевага:** несумісний зовнішній інтерфейс можна використовувати без переписування його класу.
+
+### Структура проєкту
+
+Основні файли попередніх лабораторних:
+- `Main.java` — головна програма та клас `Client`;
+- `DiscountStrategy.java`;
+- `AbstractDiscountStrategy.java`;
+- `RegularDiscount.java`;
+- `LongTermDiscount.java`;
+- `SubscriptionBenefit.java`;
+- `SubscriptionCalculator.java`;
+- `DomainException.java`;
+- `InvalidAgeException.java`;
+- `InvalidSubscriptionException.java`.
+
+Нові файли ЛР5:
+- `DiscountStrategyFactory.java`;
+- `Observer.java`;
+- `Subject.java`;
+- `ConsoleNotificationObserver.java`;
+- `MembershipLogObserver.java`;
+- `ObserverDemo.java`;
+- `PaymentProcessor.java`;
+- `LegacyPaymentService.java`;
+- `PaymentAdapter.java`;
+- `AdapterDemo.java`.
 
 ### Використані технології
-- Java
-- Інтерфейси та абстрактні класи
-- Наслідування та поліморфізм
-- Патерн Strategy
-- Git
+- Java;
+- інтерфейси та абстрактні класи;
+- наслідування та поліморфізм;
+- патерни Strategy, Factory, Observer та Adapter;
+- Git.
 
 ### Запуск програми
 
-1. Відкрити проєкт у середовищі розробки Java.
-2. Переконатися, що всі `.java`-файли знаходяться в одній папці та не мають оголошень `package`.
-3. Запустити клас `Main`.
+Відкрити термінал у кореневій папці проєкту.
 
-Альтернативний запуск через термінал:
+**1. Компіляція всіх класів:**
 
-```bash
-javac Main.java DomainException.java InvalidAgeException.java InvalidSubscriptionException.java DiscountStrategy.java AbstractDiscountStrategy.java RegularDiscount.java LongTermDiscount.java SubscriptionBenefit.java SubscriptionCalculator.java
-java Main
+```powershell
+javac -encoding UTF-8 -d out src/*.java Main.java
 ```
+
+**2. Запуск основної програми:**
+
+```powershell
+java -cp out Main
+```
+
+**3. Перевірка Observer:**
+
+```powershell
+java -cp out src.ObserverDemo
+```
+
+**4. Перевірка Adapter:**
+
+```powershell
+java -cp out src.AdapterDemo
+```
+
+### Висновок
+
+Під час лабораторної роботи виконано рефакторинг наявного проєкту фітнес-клубу. Реалізовано фабрику для створення стратегій знижок, механізм сповіщення підписників про події та адаптер для взаємодії з несумісним зовнішнім сервісом. Продемонстровано роботу кожного патерна та збережено основну функціональність попередніх лабораторних робіт.
