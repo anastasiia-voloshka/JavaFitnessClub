@@ -46,7 +46,10 @@ public class Main {
                 System.out.print("Введіть вік: ");
                 int age = readInt(scanner);
 
-                System.out.print("Введіть тип абонемента: ");
+                System.out.print(
+                        "Введіть тип абонемента "
+                                + "(standard / long-term / personal-training): "
+                );
                 String subscriptionType = scanner.nextLine();
 
                 System.out.print("Введіть кількість місяців: ");
@@ -55,18 +58,22 @@ public class Main {
                 System.out.print("Введіть вартість одного місяця: ");
                 double monthlyPrice = readDouble(scanner);
 
-                clients[i] = new Client(
-                        name,
-                        surname,
-                        age,
+                Subscription subscription = SubscriptionFactory.create(
                         subscriptionType,
                         months,
                         monthlyPrice
                 );
 
+                clients[i] = new Client(
+                        name,
+                        surname,
+                        age,
+                        subscription
+                );
+
                 subject.notifyObservers(
         "Зареєстровано клієнта: " + name + " " + surname
-                + ". Абонемент: " + subscriptionType
+                        + ". Абонемент: " + subscription.getPlanName()
                 + ", термін: " + months + " міс."
 );
             }
@@ -81,7 +88,7 @@ public class Main {
             int count = 0;
 
             for (Client client : clients) {
-                if (client.months >= 6) {
+                if (client.getSubscription().getMonths() >= 6) {
                     count++;
                 }
             }
@@ -93,8 +100,8 @@ public class Main {
 
             for (int i = 0; i < clients.length - 1; i++) {
                 for (int j = 0; j < clients.length - 1 - i; j++) {
-                    if (clients[j].monthlyPrice
-                            > clients[j + 1].monthlyPrice) {
+                    if (clients[j].getSubscription().getMonthlyPrice()
+                            > clients[j + 1].getSubscription().getMonthlyPrice()) {
                         Client temp = clients[j];
                         clients[j] = clients[j + 1];
                         clients[j + 1] = temp;
@@ -120,8 +127,8 @@ public class Main {
             boolean found = false;
 
             for (Client client : clients) {
-                if (client.name.equalsIgnoreCase(searchName)
-                        && client.surname.equalsIgnoreCase(searchSurname)) {
+                if (client.getName().equalsIgnoreCase(searchName)
+                        && client.getSurname().equalsIgnoreCase(searchSurname)) {
                     System.out.println("\nКлієнта знайдено:");
                     System.out.println(client);
                     found = true;
@@ -202,6 +209,8 @@ public class Main {
                     calculator.calculateFinalPrice(totalPrice, months)
             );
 
+            SubscriptionDemo.run();
+
             calculator.setStrategy(
                     DiscountStrategyFactory.create("regular")
             );
@@ -258,123 +267,5 @@ public class Main {
             scanner.nextLine();
             throw e;
         }
-    }
-}
-
-class Client {
-
-    String name;
-    String surname;
-    int age;
-    String subscriptionType;
-    int months;
-    double monthlyPrice;
-
-    Client(
-            String name,
-            String surname,
-            int age,
-            String subscriptionType,
-            int months,
-            double monthlyPrice
-    ) throws InvalidAgeException, InvalidSubscriptionException {
-
-        if (name == null || name.trim().isEmpty()
-                || surname == null || surname.trim().isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Ім'я та прізвище не можуть бути порожніми."
-            );
-        }
-
-        if (age < 1 || age > 120) {
-            throw new InvalidAgeException(
-                    "Вік клієнта повинен бути від 1 до 120 років.",
-                    age
-            );
-        }
-
-        if (months <= 0) {
-            throw new InvalidSubscriptionException(
-                    "Кількість місяців повинна бути більшою за 0.",
-                    months
-            );
-        }
-
-        if (!Double.isFinite(monthlyPrice) || monthlyPrice <= 0) {
-            throw new InvalidSubscriptionException(
-                    "Вартість одного місяця повинна бути більшою за 0.",
-                    monthlyPrice
-            );
-        }
-
-        if (subscriptionType == null
-                || subscriptionType.trim().isEmpty()) {
-            throw new InvalidSubscriptionException(
-                    "Тип абонемента не може бути порожнім.",
-                    subscriptionType
-            );
-        }
-
-        this.name = name;
-        this.surname = surname;
-        this.age = age;
-        this.subscriptionType = subscriptionType;
-        this.months = months;
-        this.monthlyPrice = monthlyPrice;
-    }
-
-    @Override
-    public String toString() {
-        double totalPrice = monthlyPrice * months;
-
-        SubscriptionCalculator calculator =
-                new SubscriptionCalculator(
-                        DiscountStrategyFactory.create("long-term")
-                );
-
-        double discount =
-                calculator.calculateDiscount(totalPrice, months);
-
-        double finalPrice = totalPrice - discount;
-
-        return String.format(
-                "Клієнт: %s %s%n"
-                        + "Вік: %d%n"
-                        + "Тип абонемента: %s%n"
-                        + "Кількість місяців: %d%n"
-                        + "Вартість одного місяця: %.2f грн%n"
-                        + "Вартість без знижки: %.2f грн%n"
-                        + "Знижка: %.2f грн%n"
-                        + "До сплати: %.2f грн",
-                name,
-                surname,
-                age,
-                subscriptionType,
-                months,
-                monthlyPrice,
-                totalPrice,
-                discount,
-                finalPrice
-        );
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (!(obj instanceof Client)) {
-            return false;
-        }
-
-        Client other = (Client) obj;
-
-        return name.equals(other.name)
-                && surname.equals(other.surname)
-                && age == other.age
-                && subscriptionType.equals(other.subscriptionType)
-                && months == other.months
-                && Double.compare(monthlyPrice, other.monthlyPrice) == 0;
     }
 }
