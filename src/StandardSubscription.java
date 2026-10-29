@@ -1,7 +1,5 @@
 package src;
 
-import java.util.Objects;
-
 public sealed class StandardSubscription extends Subscription
         permits LongTermSubscription {
 
@@ -9,7 +7,14 @@ public sealed class StandardSubscription extends Subscription
 
     public StandardSubscription(int months, double monthlyPrice)
             throws InvalidSubscriptionException {
-        this(months, monthlyPrice, 4, false);
+        this(
+                EntityIdGenerator.nextId(),
+                "Стандартний",
+                months,
+                monthlyPrice,
+                4,
+                false
+        );
     }
 
     public StandardSubscription(
@@ -17,7 +22,14 @@ public sealed class StandardSubscription extends Subscription
             double monthlyPrice,
             int groupClassesPerMonth
     ) throws InvalidSubscriptionException {
-        this(months, monthlyPrice, groupClassesPerMonth, false);
+        this(
+                EntityIdGenerator.nextId(),
+                "Стандартний",
+                months,
+                monthlyPrice,
+                groupClassesPerMonth,
+                false
+        );
     }
 
     protected StandardSubscription(
@@ -26,7 +38,42 @@ public sealed class StandardSubscription extends Subscription
             int groupClassesPerMonth,
             boolean showConstructorTrace
     ) throws InvalidSubscriptionException {
-        super(months, monthlyPrice, showConstructorTrace);
+        this(
+                EntityIdGenerator.nextId(),
+                "Стандартний",
+                months,
+                monthlyPrice,
+                groupClassesPerMonth,
+                showConstructorTrace
+        );
+    }
+
+    public StandardSubscription(
+            long id,
+            String name,
+            int months,
+            double monthlyPrice,
+            int groupClassesPerMonth
+    ) throws InvalidSubscriptionException {
+        this(
+                id,
+                name,
+                months,
+                monthlyPrice,
+                groupClassesPerMonth,
+                false
+        );
+    }
+
+    protected StandardSubscription(
+            long id,
+            String name,
+            int months,
+            double monthlyPrice,
+            int groupClassesPerMonth,
+            boolean showConstructorTrace
+    ) throws InvalidSubscriptionException {
+        super(id, name, months, monthlyPrice, showConstructorTrace);
 
         if (groupClassesPerMonth < 0) {
             throw new InvalidSubscriptionException(
@@ -38,7 +85,9 @@ public sealed class StandardSubscription extends Subscription
         this.groupClassesPerMonth = groupClassesPerMonth;
 
         if (showConstructorTrace) {
-            System.out.println("StandardSubscription: конструктор стандартного плану");
+            System.out.println(
+                    "StandardSubscription: конструктор стандартного плану"
+            );
         }
     }
 
@@ -71,25 +120,5 @@ public sealed class StandardSubscription extends Subscription
                         "%nГрупові заняття: %d на місяць",
                         groupClassesPerMonth
                 );
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-
-        if (object == null || getClass() != object.getClass()) {
-            return false;
-        }
-
-        StandardSubscription other = (StandardSubscription) object;
-        return super.equals(object)
-                && groupClassesPerMonth == other.groupClassesPerMonth;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), groupClassesPerMonth);
     }
 }

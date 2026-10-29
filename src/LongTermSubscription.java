@@ -1,7 +1,5 @@
 package src;
 
-import java.util.Objects;
-
 public sealed class LongTermSubscription extends StandardSubscription
         permits PersonalTrainingSubscription {
 
@@ -26,7 +24,32 @@ public sealed class LongTermSubscription extends StandardSubscription
             double discountRate,
             boolean showConstructorTrace
     ) throws InvalidSubscriptionException {
-        super(months, monthlyPrice, 4, showConstructorTrace);
+        this(
+                EntityIdGenerator.nextId(),
+                "Довгостроковий",
+                months,
+                monthlyPrice,
+                discountRate,
+                showConstructorTrace
+        );
+    }
+
+    protected LongTermSubscription(
+            long id,
+            String name,
+            int months,
+            double monthlyPrice,
+            double discountRate,
+            boolean showConstructorTrace
+    ) throws InvalidSubscriptionException {
+        super(
+                id,
+                name,
+                months,
+                monthlyPrice,
+                4,
+                showConstructorTrace
+        );
 
         if (!Double.isFinite(discountRate)
                 || discountRate < 0
@@ -40,7 +63,9 @@ public sealed class LongTermSubscription extends StandardSubscription
         this.discountRate = discountRate;
 
         if (showConstructorTrace) {
-            System.out.println("LongTermSubscription: конструктор довгострокового плану");
+            System.out.println(
+                    "LongTermSubscription: конструктор довгострокового плану"
+            );
         }
     }
 
@@ -65,7 +90,8 @@ public sealed class LongTermSubscription extends StandardSubscription
     @Override
     public String getBenefitsDescription() {
         return String.format(
-                "Доступ до зали, групові заняття та знижка %.0f%% для терміну від 6 місяців.",
+                "Доступ до зали, групові заняття та знижка %.0f%% "
+                        + "для терміну від 6 місяців.",
                 discountRate * 100
         );
     }
@@ -77,25 +103,5 @@ public sealed class LongTermSubscription extends StandardSubscription
                         "%nЗнижка за термін від 6 місяців: %.0f%%",
                         discountRate * 100
                 );
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-
-        if (object == null || getClass() != object.getClass()) {
-            return false;
-        }
-
-        LongTermSubscription other = (LongTermSubscription) object;
-        return super.equals(object)
-                && Double.compare(discountRate, other.discountRate) == 0;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), discountRate);
     }
 }

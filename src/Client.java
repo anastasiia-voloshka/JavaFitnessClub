@@ -1,10 +1,8 @@
+
 package src;
 
-import java.util.Objects;
+public final class Client extends BaseEntity {
 
-public final class Client {
-
-    private final String name;
     private final String surname;
     private final int age;
     private final Subscription subscription;
@@ -15,10 +13,21 @@ public final class Client {
             int age,
             Subscription subscription
     ) throws InvalidAgeException, InvalidSubscriptionException {
-        if (name == null || name.trim().isEmpty()
-                || surname == null || surname.trim().isEmpty()) {
+        this(EntityIdGenerator.nextId(), name, surname, age, subscription);
+    }
+
+    public Client(
+            long id,
+            String name,
+            String surname,
+            int age,
+            Subscription subscription
+    ) throws InvalidAgeException, InvalidSubscriptionException {
+        super(id, name);
+
+        if (surname == null || surname.trim().isEmpty()) {
             throw new IllegalArgumentException(
-                    "Ім'я та прізвище не можуть бути порожніми."
+                    "Прізвище не може бути порожнім."
             );
         }
 
@@ -36,14 +45,9 @@ public final class Client {
             );
         }
 
-        this.name = name;
-        this.surname = surname;
+        this.surname = surname.trim();
         this.age = age;
         this.subscription = subscription;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public String getSurname() {
@@ -62,14 +66,16 @@ public final class Client {
     public String toString() {
         return String.format(
                 "Клієнт: %s %s%n"
+                        + "ID: %d%n"
                         + "Вік: %d%n"
                         + "Тип абонемента: %s%n"
                         + "Переваги: %s%n"
                         + "%s%n"
                         + "Знижка: %.2f грн%n"
                         + "До сплати: %.2f грн",
-                name,
+                getName(),
                 surname,
+                getId(),
                 age,
                 subscription.getPlanName(),
                 subscription.getBenefitsDescription(),
@@ -77,27 +83,5 @@ public final class Client {
                 subscription.calculateDiscount(),
                 subscription.getFinalPrice()
         );
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-
-        if (object == null || getClass() != object.getClass()) {
-            return false;
-        }
-
-        Client other = (Client) object;
-        return age == other.age
-                && name.equals(other.name)
-                && surname.equals(other.surname)
-                && subscription.equals(other.subscription);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, surname, age, subscription);
     }
 }

@@ -1,15 +1,20 @@
 package src;
 
-import java.util.Objects;
-
-public sealed abstract class Subscription permits StandardSubscription {
+public sealed abstract class Subscription extends BaseEntity
+        permits StandardSubscription {
 
     private final int months;
     private final double monthlyPrice;
 
     protected Subscription(int months, double monthlyPrice)
             throws InvalidSubscriptionException {
-        this(months, monthlyPrice, false);
+        this(
+                EntityIdGenerator.nextId(),
+                "Абонемент",
+                months,
+                monthlyPrice,
+                false
+        );
     }
 
     protected Subscription(
@@ -17,6 +22,24 @@ public sealed abstract class Subscription permits StandardSubscription {
             double monthlyPrice,
             boolean showConstructorTrace
     ) throws InvalidSubscriptionException {
+        this(
+                EntityIdGenerator.nextId(),
+                "Абонемент",
+                months,
+                monthlyPrice,
+                showConstructorTrace
+        );
+    }
+
+    protected Subscription(
+            long id,
+            String name,
+            int months,
+            double monthlyPrice,
+            boolean showConstructorTrace
+    ) throws InvalidSubscriptionException {
+        super(id, name);
+
         if (months <= 0) {
             throw new InvalidSubscriptionException(
                     "Кількість місяців повинна бути більшою за 0.",
@@ -35,7 +58,9 @@ public sealed abstract class Subscription permits StandardSubscription {
         this.monthlyPrice = monthlyPrice;
 
         if (showConstructorTrace) {
-            System.out.println("Subscription: конструктор базового класу");
+            System.out.println(
+                    "Subscription: конструктор базового класу"
+            );
         }
     }
 
@@ -64,32 +89,16 @@ public sealed abstract class Subscription permits StandardSubscription {
     @Override
     public String toString() {
         return String.format(
-                "Термін абонемента: %d міс.%n"
+                "ID: %d%n"
+                        + "Тип абонемента: %s%n"
+                        + "Термін абонемента: %d міс.%n"
                         + "Ціна за місяць: %.2f грн%n"
                         + "Вартість без знижки: %.2f грн",
+                getId(),
+                getName(),
                 months,
                 monthlyPrice,
                 getTotalPrice()
         );
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-
-        if (object == null || getClass() != object.getClass()) {
-            return false;
-        }
-
-        Subscription other = (Subscription) object;
-        return months == other.months
-                && Double.compare(monthlyPrice, other.monthlyPrice) == 0;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getClass(), months, monthlyPrice);
     }
 }

@@ -1,8 +1,7 @@
 package src;
 
-import java.util.Objects;
-
-public final class PersonalTrainingSubscription extends LongTermSubscription {
+public final class PersonalTrainingSubscription
+        extends LongTermSubscription {
 
     private final int personalTrainingSessionsPerMonth;
 
@@ -11,7 +10,12 @@ public final class PersonalTrainingSubscription extends LongTermSubscription {
             double monthlyPrice,
             int personalTrainingSessionsPerMonth
     ) throws InvalidSubscriptionException {
-        this(months, monthlyPrice, personalTrainingSessionsPerMonth, false);
+        this(
+                months,
+                monthlyPrice,
+                personalTrainingSessionsPerMonth,
+                false
+        );
     }
 
     public PersonalTrainingSubscription(
@@ -20,7 +24,49 @@ public final class PersonalTrainingSubscription extends LongTermSubscription {
             int personalTrainingSessionsPerMonth,
             boolean showConstructorTrace
     ) throws InvalidSubscriptionException {
-        super(months, monthlyPrice, 0.10, showConstructorTrace);
+        this(
+                EntityIdGenerator.nextId(),
+                "Персональне тренування",
+                months,
+                monthlyPrice,
+                personalTrainingSessionsPerMonth,
+                showConstructorTrace
+        );
+    }
+
+    public PersonalTrainingSubscription(
+            long id,
+            String name,
+            int months,
+            double monthlyPrice,
+            int personalTrainingSessionsPerMonth
+    ) throws InvalidSubscriptionException {
+        this(
+                id,
+                name,
+                months,
+                monthlyPrice,
+                personalTrainingSessionsPerMonth,
+                false
+        );
+    }
+
+    public PersonalTrainingSubscription(
+            long id,
+            String name,
+            int months,
+            double monthlyPrice,
+            int personalTrainingSessionsPerMonth,
+            boolean showConstructorTrace
+    ) throws InvalidSubscriptionException {
+        super(
+                id,
+                name,
+                months,
+                monthlyPrice,
+                0.10,
+                showConstructorTrace
+        );
 
         if (personalTrainingSessionsPerMonth <= 0) {
             throw new InvalidSubscriptionException(
@@ -34,7 +80,8 @@ public final class PersonalTrainingSubscription extends LongTermSubscription {
 
         if (showConstructorTrace) {
             System.out.println(
-                    "PersonalTrainingSubscription: конструктор персонального плану"
+                    "PersonalTrainingSubscription: "
+                            + "конструктор персонального плану"
             );
         }
     }
@@ -69,30 +116,5 @@ public final class PersonalTrainingSubscription extends LongTermSubscription {
                         "%nПерсональні тренування: %d на місяць",
                         personalTrainingSessionsPerMonth
                 );
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-
-        if (object == null || getClass() != object.getClass()) {
-            return false;
-        }
-
-        PersonalTrainingSubscription other =
-                (PersonalTrainingSubscription) object;
-        return super.equals(object)
-                && personalTrainingSessionsPerMonth
-                        == other.personalTrainingSessionsPerMonth;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(
-                super.hashCode(),
-                personalTrainingSessionsPerMonth
-        );
     }
 }
